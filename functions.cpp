@@ -4,25 +4,113 @@
 #include <string>
 #include <sstream>
 #include <vector>
-
+#include <map>
+#include <unordered_map>
 using namespace std;
 
-int main() {
-    string fileName;
-    int members;
+void memberLink(ifstream &ifs, const string current, map<string, vector<string>>& mem_map, int numMems) {
+    vector<string> memberData(numMems);
+    string curMem;
 
-    cout << "Enter File Name: ";
-    getline(cin, fileName);
+    for (int i = 0; i < numMems; ++i) {
+        ifs >> curMem;
+        memberData[i] = curMem;
+    } 
 
-    cout << "Enter # of memebers: ";
-    cin >> members;
+    mem_map.insert(pair<string, vector<string>>(current,memberData));
+}
 
-    if(sortCheck()) {
-        if (sortfile(fileName, members) < 0) {
-            cout << "Failed to load file";
-            return 0;
+int removeDupes(const string fileName, const int numMems) {
+    ifstream ifs(fileName);
+    map<string, vector<string >> dupes_map;
+    string current;
+
+    if (!ifs.is_open()){
+        return -1;
+    }
+
+    while (!ifs.eof()) {
+        ifs >> current;
+        memberLink(ifs, current, dupes_map, numMems);
+    }
+
+    writefileDict(fileName, dupes_map, numMems, "NoD.");
+
+    return 0;
+}
+
+void writefileDict(string fileName, map<string, vector<string >> &out_map, const unsigned int numMems, string fileop) {
+    ofstream ofs(fileName.insert(0, fileop));
+    for( auto const& [key,val] : out_map )
+    {
+        ofs << key;
+        for (unsigned int i = 0; i < numMems; ++i) {
+            ofs << " " << val[i];
+        }
+        ofs << endl;
+    }
+}
+
+int sortfile(const string fileName, const int numMems) {
+    ifstream ifs(fileName);
+    vector<string> fileVector;
+    string current;
+    map<string, vector<string >> memeber_map;
+
+    if (!ifs.is_open()){
+        return -1;
+    }
+
+    ifs >> current;
+    memberLink(ifs, current, memeber_map, numMems);
+    fileVector.push_back(current);
+
+    while (!ifs.eof()) {
+        ifs >> current;
+
+        memberLink(ifs, current, memeber_map, numMems);
+
+        for (int i = fileVector.size() - 1; i >= 0; --i) {
+            if (current >= fileVector[i]) {
+                fileVector.insert (fileVector.begin()+i+1, current);
+                break;
+            }
+            else if (i == 0) {
+                fileVector.insert (fileVector.begin(), current);
+            }
+        }
+    }
+
+    writefile(fileVector, fileName, fileVector.size(), memeber_map, numMems, "Sort");
+
+    return 0;
+}
+
+int writefile(const vector<string> &fileVector, string fileName, const unsigned int fileVectorSize, map<string, vector<string>> mem_map, unsigned int numMems, string fileop) {
+    ofstream ofs(fileName.insert(0, fileop));
+
+    for (unsigned int i = 0; i < fileVectorSize; ++i) {
+        ofs << fileVector[i];
+        for (unsigned int j = 0; j < numMems; ++j) {
+            ofs << " " << mem_map.at(fileVector[i])[j];
+        }
+        if (i < fileVectorSize - 1) {
+            ofs << '\n';
         }
     }
 
     return 0;
+}
+
+bool methodCheck(string op) {
+    char userinput = 'o';
+    while (userinput != 'y' && userinput != 'n') {
+        cout << op << "? (y/n) ";
+        cin >> userinput;
+    }
+
+    if (userinput == 'y')
+        return true;
+    else
+        return false;    
 }
