@@ -4,11 +4,10 @@
 #include <string>
 #include <sstream>
 #include <vector>
-#include <map>
 #include <unordered_map>
 using namespace std;
 
-void memberLink(ifstream &ifs, const string current, map<string, vector<string>>& mem_map, int numMems) {
+void memberLink(ifstream &ifs, const string current, unordered_map<string, vector<string>>& mem_map, int numMems) {
     vector<string> memberData(numMems);
     string curMem;
 
@@ -22,7 +21,7 @@ void memberLink(ifstream &ifs, const string current, map<string, vector<string>>
 
 int removeDupes(const string fileName, const int numMems) {
     ifstream ifs(fileName);
-    map<string, vector<string >> dupes_map;
+    unordered_map<string, vector<string >> dupes_map;
     string current;
 
     if (!ifs.is_open()){
@@ -34,12 +33,12 @@ int removeDupes(const string fileName, const int numMems) {
         memberLink(ifs, current, dupes_map, numMems);
     }
 
-    writefileDict(fileName, dupes_map, numMems, "NoD.");
+    writefileDict(fileName, dupes_map, numMems, "NoDup_");
 
     return 0;
 }
 
-void writefileDict(string fileName, map<string, vector<string >> &out_map, const unsigned int numMems, string fileop) {
+void writefileDict(string fileName, unordered_map<string, vector<string >> &out_map, const unsigned int numMems, string fileop) {
     ofstream ofs(fileName.insert(0, fileop));
     for( auto const& [key,val] : out_map )
     {
@@ -55,7 +54,7 @@ int sortfile(const string fileName, const int numMems) {
     ifstream ifs(fileName);
     vector<string> fileVector;
     string current;
-    map<string, vector<string >> memeber_map;
+    unordered_map<string, vector<string >> memeber_map;
 
     if (!ifs.is_open()){
         return -1;
@@ -81,12 +80,12 @@ int sortfile(const string fileName, const int numMems) {
         }
     }
 
-    writefile(fileVector, fileName, fileVector.size(), memeber_map, numMems, "Sort");
+    writefile(fileVector, fileName, fileVector.size(), memeber_map, numMems, "Sort_");
 
     return 0;
 }
 
-int writefile(const vector<string> &fileVector, string fileName, const unsigned int fileVectorSize, map<string, vector<string>> mem_map, unsigned int numMems, string fileop) {
+int writefile(const vector<string> &fileVector, string fileName, const unsigned int fileVectorSize, unordered_map<string, vector<string>> mem_map, unsigned int numMems, string fileop) {
     ofstream ofs(fileName.insert(0, fileop));
 
     for (unsigned int i = 0; i < fileVectorSize; ++i) {
